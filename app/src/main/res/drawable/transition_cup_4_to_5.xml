@@ -1,0 +1,4 @@
+<transition xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/icon_cup_4" />
+    <item android:drawable="@drawable/icon_cup_5" />
+</transition>

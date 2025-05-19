@@ -7,8 +7,7 @@ import com.leaning.against.mountains.drinkingwater.R
 import com.leaning.against.mountains.drinkingwater.base.BaseActivity
 import com.leaning.against.mountains.drinkingwater.base.BaseViewModel
 import com.leaning.against.mountains.drinkingwater.databinding.ActivityFirstBinding
-import com.leaning.against.mountains.drinkingwater.databinding.ActivityMainBinding
-import com.leaning.against.mountains.drinkingwater.ui.MainActivity
+import com.leaning.against.mountains.drinkingwater.ui.main.MainActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,7 +23,6 @@ class FirstActivity : BaseActivity<ActivityFirstBinding, BaseViewModel>() {
         onBackPressedDispatcher.addCallback {
         }
         var num = 0
-
         job = lifecycleScope.launch {
             while (true) {
                 binding.loiGuide.progress = num

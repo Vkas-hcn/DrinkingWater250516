@@ -2,24 +2,242 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
 
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.MainActivity">
+        android:background="@drawable/background_main">
 
         <TextView
             android:id="@+id/tv_tttt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/playpen_sans_light"
+            android:text="@string/app_name"
+            android:textColor="#FF448C2E"
+            android:textSize="16sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgHis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/icon_his"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_tttt"
+            app:layout_constraintEnd_toStartOf="@+id/imgSet"
+            app:layout_constraintTop_toTopOf="@+id/tv_tttt" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgSet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/icon_set"
+            app:layout_constraintBottom_toBottomOf="@+id/imgHis"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/imgHis" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/con_show_infor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_tttt">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/con_show_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Today’s goal"
+                    android:textColor="#FF214615"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_goal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:drawableEnd="@drawable/icon_edit"
+                    android:drawablePadding="10dp"
+                    android:text="2500ml"
+                    android:textColor="#FF58BFFE"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+                <com.leaning.against.mountains.drinkingwater.wight.CustomCupProgressView
+                    android:id="@+id/cupProgressView"
+                    android:layout_width="120dp"
+                    android:layout_height="135dp"
+                    android:layout_marginTop="24dp"
+                    android:src="@drawable/icon_cup_0"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_goal" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:backgroundTint="@color/white"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:contentPaddingBottom="8dp"
+                    app:contentPaddingLeft="25dp"
+                    app:contentPaddingRight="25dp"
+                    app:contentPaddingTop="8dp"
+                    app:layout_constraintEnd_toEndOf="@+id/cupProgressView"
+                    app:layout_constraintStart_toStartOf="@+id/cupProgressView"
+                    app:layout_constraintTop_toBottomOf="@+id/cupProgressView">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_drink_pro"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:textColor="#FF214615"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_drink_ml"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="0ml"
+                            android:textColor="#FF214615"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/con_show_finish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="42dp"
+                android:background="@drawable/icon_finish_bg"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="35dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/aiv_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_congratulations"
+                    app:layout_constraintBottom_toTopOf="@+id/aiv_2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/aiv_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_reaches_goal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/aiv_1" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <ImageView
+            android:id="@+id/imgAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/icon_add"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/con_show_infor" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_num"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/imgAdd"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imgAdd"
+            app:layout_constraintTop_toTopOf="@+id/imgAdd" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_main_bottom"
+            android:orientation="vertical"
+            android:padding="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgAdd">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/icon_go"
+                android:fontFamily="@font/playpen_sans_light"
+                android:gravity="center_vertical"
+                android:text="Today’s hydration records"
+                android:textColor="#FF4B9135"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recy_today_drink"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="24dp"
+                android:layout_weight="1"
+                tools:listitem="@layout/item_main" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/in_goal"
+            layout="@layout/dialog_goal" />
+
+        <include
+            android:id="@+id/in_water"
+            layout="@layout/dialog_water" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

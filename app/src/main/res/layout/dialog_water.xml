@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialog_con"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    android:background="#A5000000">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:background="@drawable/bg_dialog"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Water"
+            android:textColor="#FF4B9135"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/editNum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="31dp"
+            android:background="@null"
+            android:inputType="number"
+            android:maxLength="4"
+            android:text="2500"
+            android:textColor="#FF214615"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/tv_add"
+            app:layout_constraintTop_toBottomOf="@+id/tv_add" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="ML"
+            android:textColor="#FF333333"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="@+id/editNum"
+            app:layout_constraintStart_toEndOf="@+id/editNum" />
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="118dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="41dp"
+            android:background="@drawable/bg_dialog_cancel"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:text="Cancel"
+            android:textColor="#D6D6D6"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toStartOf="@+id/tv_confirm"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editNum" />
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="118dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="41dp"
+            android:background="@drawable/bg_dialog_confirm"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:text="Confirm"
+            android:textColor="#FFFFFFFF"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_cancel"
+            app:layout_constraintTop_toBottomOf="@+id/editNum" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
