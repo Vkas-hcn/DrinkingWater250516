@@ -8,6 +8,7 @@ import com.leaning.against.mountains.drinkingwater.R
 import com.leaning.against.mountains.drinkingwater.base.BaseActivity
 import com.leaning.against.mountains.drinkingwater.base.BaseViewModel
 import com.leaning.against.mountains.drinkingwater.databinding.ActivityMainBinding
+import com.leaning.against.mountains.drinkingwater.ui.history.HistoryActivity
 import com.leaning.against.mountains.drinkingwater.ui.setting.SettingActivity
 import com.leaning.against.mountains.drinkingwater.utils.WaterDrinkBean
 import kotlinx.coroutines.delay
@@ -17,151 +18,126 @@ import java.util.Date
 import java.util.Locale
 
 
-class MainActivity : BaseActivity<ActivityMainBinding, BaseViewModel>() , AddNumAdapter.OnItemClickListener{
+class MainActivity : BaseActivity<ActivityMainBinding, BaseViewModel>(), MainContract.View, AddNumAdapter.OnItemClickListener {
+
+    private lateinit var presenter: MainPresenter
+    private lateinit var todayAdapter: TodayWaterAdapter
+    private lateinit var addNumAdapter: AddNumAdapter
 
     override fun getLayoutId(): Int = R.layout.activity_main
-
     override fun getViewModelClass(): Class<BaseViewModel> = BaseViewModel::class.java
-    private lateinit var adapterAddNum: AddNumAdapter
-    private lateinit var adapterToady: TodayWaterAdapter
 
     override fun initUI() {
-        clikFun()
-        iniAdapter()
-        initNumAdapter()
+        presenter = MainPresenter(this)
+        setupAdapters()
+        setupListeners()
         loadData()
-        loadAddNumData()
-        getGoalNum()
+    }
+
+    private fun setupAdapters() {
+        todayAdapter = TodayWaterAdapter()
+        binding.recyTodayDrink.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = todayAdapter
+        }
+
+        addNumAdapter = AddNumAdapter(this)
+        binding.recyclerNum.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = addNumAdapter
+        }
+    }
+
+    private fun setupListeners() {
+        with(binding) {
+            imgHis.setOnClickListener { navigateTo(HistoryActivity::class.java) }
+            imgSet.setOnClickListener { navigateTo(SettingActivity::class.java) }
+            atvToday.setOnClickListener { navigateTo(HistoryActivity::class.java) }
+            imgAdd.setOnClickListener { inWater.dialogCon.isVisible = true }
+            tvGoal.setOnClickListener { inGoal.dialogCon.isVisible = true }
+
+            inGoal.tvConfirm.setOnClickListener {
+                inGoal.editNum.text.toString().trim().toIntOrNull()?.let {
+                    presenter.updateGoal(it)
+                    loadData()
+                    inGoal.dialogCon.isVisible = false
+                } ?: run {
+                    Toast.makeText(this@MainActivity, "Please enter the correct value", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            inGoal.tvCancel.setOnClickListener { inGoal.dialogCon.isVisible = false }
+
+            inWater.tvConfirm.setOnClickListener {
+                inWater.editNum.text.toString().trim().toIntOrNull()?.let {
+                    if (it <= 0) {
+                        Toast.makeText(this@MainActivity, "Please enter the correct value", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    MainUtils.saveAddNumList(it)
+                    loadData()
+                    inWater.dialogCon.isVisible = false
+                } ?: run {
+                    Toast.makeText(this@MainActivity, "Please enter the correct value", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            inWater.tvCancel.setOnClickListener { inWater.dialogCon.isVisible = false }
+        }
+    }
+
+    private fun loadData() {
+        presenter.loadTodayData()
+        presenter.loadAddNumData()
     }
 
     override fun onResume() {
         super.onResume()
         loadData()
     }
-    private fun iniAdapter(){
-        adapterToady = TodayWaterAdapter()
-        binding.recyTodayDrink.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = adapterToady
-        }
-    }
-    private fun initNumAdapter(){
-        adapterAddNum = AddNumAdapter(this)
-        binding.recyclerNum.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = adapterAddNum
-        }
-    }
-    private fun loadData() {
-        val todayList = MainUtils.getTodayWaterList()
-        adapterToady.submitList(todayList)
-        getGoalNum()
-    }
-    fun clikFun(){
-        with(binding){
-            binding.imgSet.setOnClickListener {
-                navigateTo(SettingActivity::class.java)
-            }
-            binding.inWater.dialogCon.setOnClickListener {  }
-            binding.inGoal.dialogCon.setOnClickListener {
-            }
-            binding.inWater.tvCancel.setOnClickListener {
-                binding.inWater.dialogCon.isVisible = false
-            }
-            binding.inGoal.tvCancel.setOnClickListener {
-                binding.inGoal.dialogCon.isVisible = false
-            }
-            binding.inGoal.tvConfirm.setOnClickListener {
-                binding.inGoal.dialogCon.isVisible = false
-                val goalNum = binding.inGoal.editNum.text.toString().trim().toIntOrNull()
-                if (goalNum != null && goalNum > 0) {
-                    MainUtils.updateTodayGoal(goalNum)
-                    loadData()
-                    inGoal.dialogCon.isVisible = false
-                    MainUtils.cloneKey(this@MainActivity,binding.inGoal.dialogCon)
-                } else {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Please enter the correct value",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            binding.inWater.tvConfirm.setOnClickListener {
-                binding.inWater.editNum.text.toString().trim().toIntOrNull()?.let {
-                    if (it <= 0) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Please enter the correct value",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@setOnClickListener
-                    }
-                    MainUtils.saveAddNumList(it)
-                    loadAddNumData()
-                    inWater.dialogCon.isVisible = false
-                    MainUtils.cloneKey(this@MainActivity,binding.inWater.dialogCon)
-                } ?: run {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Please enter the correct value",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
 
-            }
-            imgAdd.setOnClickListener {
-                binding.inWater.dialogCon.isVisible = true
-            }
-            tvGoal.setOnClickListener {
-                binding.inGoal.dialogCon.isVisible = true
-            }
-        }
+    // 实现 View 接口方法
+    override fun showTodayList(data: List<WaterDrinkBean>) {
+        todayAdapter.submitList(data)
+        binding.tvDrinkMl.text = "${MainUtils.getTodayTotalDrink()}ml"
+        val data = MainUtils.getTodayWaterList().lastOrNull()?.goalNum ?: 2500
+        binding.tvGoal.text = "${data}ml"
+
     }
-    private fun loadAddNumData() {
-        val numList = MainUtils.getAddNumList()
-        adapterAddNum.submitList(numList)
+
+    override fun showAddNumList(data: List<Int>) {
+        addNumAdapter.submitList(data)
+    }
+
+    override fun updateGoal(goal: Int) {
+        binding.tvGoal.text = "${goal}ml"
+        binding.inGoal.editNum.setText(goal.toString())
+    }
+
+    override fun updateProgress(progress: Int, totalDrink: Int) {
+        binding.cupProgressView.setProgress(progress)
+        binding.tvDrinkPro.text = "$progress%"
+    }
+
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showFinishState() {
+        binding.conShowNum.isVisible = false
+        binding.conShowFinish.isVisible = true
+        binding.tvDrinkPro.text = "100%"
+    }
+
+    override fun hideFinishState() {
+        binding.conShowNum.isVisible = true
+        binding.conShowFinish.isVisible = false
     }
 
     override fun onItemClick(amount: Int) {
-        addWaterRecord(amount)
-    }
-    private fun addWaterRecord(amount: Int) {
-        binding.inGoal.editNum.text.toString().trim().toIntOrNull()?.let {
-            if (it <= 0) {
-                Toast.makeText(
-                    this,
-                    "Please enter the correct value",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
-            val newRecord = WaterDrinkBean(
-                id = System.currentTimeMillis().toString(),
-                date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
-                goalNum = it,
-                drinkNum = amount,
-                drinkTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-            )
-            MainUtils.addWaterBean(newRecord)
-            loadData()
+        if(binding.conShowFinish.isVisible){
+            return
         }
-    }
-    private fun getGoalNum() {
-        val data = MainUtils.getTodayWaterList().lastOrNull()?.goalNum ?: 25000
-        val proData = MainUtils.getTodayProgress()
-        binding.tvGoal.text = "${data}ml"
-        binding.inGoal.editNum.setText(data.toString())
-        binding.tvDrinkMl.text = MainUtils.getTodayTotalDrink().toString() + "ml"
-        binding.cupProgressView.setProgress(proData)
-        binding.tvDrinkPro.text = if (proData >= 100) {
-            binding.conShowNum.isVisible = false
-            binding.conShowFinish.isVisible = true
-            "100%"
-        } else {
-            binding.conShowNum.isVisible = true
-            binding.conShowFinish.isVisible = false
-            "${proData}%"
-        }
+        presenter.addWaterRecord(amount)
     }
 }

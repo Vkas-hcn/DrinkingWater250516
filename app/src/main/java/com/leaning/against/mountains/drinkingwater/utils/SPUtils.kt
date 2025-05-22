@@ -17,7 +17,7 @@ class SPUtils private constructor(context: Context) {
         }
     }
 
-    private val sp: SharedPreferences by lazy {
+    val sp: SharedPreferences by lazy {
         context.getSharedPreferences(DEFAULT_SP_NAME, Context.MODE_PRIVATE)
     }
 

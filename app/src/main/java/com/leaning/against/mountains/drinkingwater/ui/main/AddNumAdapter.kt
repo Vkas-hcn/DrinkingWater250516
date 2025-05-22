@@ -10,15 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.leaning.against.mountains.drinkingwater.R
 
 class AddNumAdapter(private val listener: OnItemClickListener) : RecyclerView.Adapter<AddNumAdapter.ViewHolder>() {
-    private var items = listOf<Int>()
-
+    private var items: List<Int> = emptyList()
     interface OnItemClickListener {
         fun onItemClick(amount: Int)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val flAdd: FrameLayout = itemView.findViewById(R.id.fl_add)
-
         val tvAddNum: TextView = itemView.findViewById(R.id.tvAddNum)
     }
 

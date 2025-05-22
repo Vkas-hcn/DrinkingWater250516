@@ -1,5 +1,6 @@
 package com.leaning.against.mountains.drinkingwater.ui.main
 
+import android.content.SharedPreferences
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
@@ -11,147 +12,108 @@ import com.leaning.against.mountains.drinkingwater.utils.WaterDrinkBean
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+// 通用扩展函数：安全读取 JSON 数据
+inline fun <reified T> SharedPreferences.getJson(key: String, default: T): T {
+    return try {
+        val json = getString(key, null) ?: return default
+        Gson().fromJson(json, object : TypeToken<T>() {}.type) ?: default
+    } catch (e: Exception) {
+        default
+    }
+}
 
+// 通用扩展函数：安全写入 JSON 数据
+fun SharedPreferences.putJson(key: String, value: Any?) {
+    edit().putString(key, Gson().toJson(value)).apply()
+}
 object MainUtils {
-    fun getAddNumList(): MutableList<Int> {
-        val defaultJson = "[200,400,600]".trimIndent()
-        val showNumJson = SPUtils.get().getString("shownumjson", defaultJson)
-        return try {
-            Gson().fromJson(showNumJson, object : TypeToken<MutableList<Int>>() {}.type)
-                ?: mutableListOf()
-        } catch (e: Exception) {
-            // 解析失败时返回默认值
-            Gson().fromJson(defaultJson, object : TypeToken<MutableList<Int>>() {}.type)
-        }
+
+    // 获取/保存添加数量列表（带默认值保护）
+    fun getAddNumList(): List<Int> {
+        val defaultList = listOf(200, 400, 600)
+        return SPUtils.get().sp.getJson("shownumjson", defaultList)
     }
 
-
-    // 保存添加数量列表
     fun saveAddNumList(num: Int) {
-        val list = getAddNumList().toMutableList()
-        list.add(num)
-        SPUtils.get().put("shownumjson", Gson().toJson(list))
+        val newList = getAddNumList().toMutableList().apply { add(num) }
+        SPUtils.get().sp.putJson("shownumjson", newList)
     }
 
-    // 获取当前喝水列表
-    fun getWaterList(): MutableList<WaterDrinkBean> {
-        val json = SPUtils.get().getString("waterJson", "")
-        return try {
-            Gson().fromJson(json, object : TypeToken<MutableList<WaterDrinkBean>>() {}.type)
-                ?: mutableListOf()
-        } catch (e: Exception) {
-            mutableListOf()
-        }
+    // 获取/保存喝水记录（空安全处理）
+     fun getWaterList(): List<WaterDrinkBean> {
+        return SPUtils.get().sp.getJson("waterJson", emptyList<WaterDrinkBean>())
     }
 
-    // 保存喝水列表
     private fun saveWaterList(list: List<WaterDrinkBean>) {
-        SPUtils.get().put("waterJson", Gson().toJson(list))
+        SPUtils.get().sp.putJson("waterJson", list)
     }
 
-    // 新增喝水记录
+    // 增删改喝水记录（函数式操作）
     fun addWaterBean(bean: WaterDrinkBean) {
-        val list = getWaterList().toMutableList()
-        list.add(bean)
-        saveWaterList(list)
+        saveWaterList(getWaterList() + bean)
     }
 
-    // 删除喝水记录
     fun deleteWaterBean(id: String) {
-        val list = getWaterList().toMutableList()
-        list.removeIf { it.id == id }
-        saveWaterList(list)
+        saveWaterList(getWaterList().filterNot { it.id == id })
     }
 
-    // 更新喝水记录
     fun updateWaterBean(bean: WaterDrinkBean) {
-        val list = getWaterList().toMutableList()
-        val index = list.indexOfFirst { it.id == bean.id }
-        if (index != -1) {
-            list[index] = bean
-            saveWaterList(list)
-        }
+        saveWaterList(getWaterList().map { if (it.id == bean.id) bean else it })
     }
 
-    // 获取今日喝水列表（按日期过滤）
-    fun getTodayWaterList(
-        date: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
-            Date()
-        )
-    ):
-            List<WaterDrinkBean> {
+    // 获取今日数据（带默认值保护）
+    private val todayDate by lazy {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    }
+
+    fun getTodayWaterList(date: String = todayDate): List<WaterDrinkBean> {
         return getWaterList().filter { it.date == date }
     }
 
-    // WaterUtils.kt 新增方法
+    // 更新目标水量（函数式替换）
     fun updateTodayGoal(newGoal: Int) {
-        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val list = getWaterList().toMutableList()
+        val todayDate = todayDate
+        saveWaterList(getWaterList().map {
+            if (it.date == todayDate) it.copy(goalNum = newGoal) else it
+        })
+    }
 
-        list.replaceAll { bean ->
-            if (bean.date == todayDate) {
-                bean.copy(goalNum = newGoal)
-            } else {
-                bean
+    // 获取统计信息（带空安全保护）
+    fun getTodayTotalDrink(date: String = todayDate): Int {
+        return getTodayWaterList(date).sumOf(WaterDrinkBean::drinkNum)
+    }
+
+    fun getTodayProgress(date: String = todayDate): Int {
+        val todayList = getTodayWaterList(date)
+        return if (todayList.isEmpty()) 0 else {
+            val total = todayList.sumOf(WaterDrinkBean::drinkNum)
+            val goal = todayList.first().goalNum.takeIf { it > 0 } ?: return 0
+            (total.toFloat() / goal * 100).toInt().coerceAtMost(100)
+        }
+    }
+
+    // 获取历史记录（使用集合操作简化）
+    fun getHistoryList(): List<HistoryBean> {
+        return getWaterList()
+            .groupBy(WaterDrinkBean::date)
+            .map { (date, beans) ->
+                val total = beans.sumOf(WaterDrinkBean::drinkNum)
+                val goal = beans.firstOrNull()?.goalNum.takeIf { it!! > 0 } ?: 0
+                HistoryBean(
+                    date = date,
+                    totalDrink = total,
+                    cupCount = beans.size,
+                    progress = if (goal == 0) 0 else (total.toFloat() / goal * 100).toInt()
+                        .coerceAtMost(100)
+                )
             }
-        }
-
-        saveWaterList(list)
+            .sortedByDescending(HistoryBean::date)
     }
 
-    fun getTodayTotalDrink(): Int {
-        return getTodayWaterList().sumOf { it.drinkNum }
-    }
-
-    fun getTodayProgress(): Int {
-        val todayList = getTodayWaterList()
-        if (todayList.isEmpty()) return 0
-        val total = todayList.sumOf { it.drinkNum }
-        val goal =
-            todayList.first().goalNum
-        if (goal == 0)
-            return 0
-        return (total.toFloat() / goal * 100).toInt()
-    }
-
-    /**
-     * 获取历史记录列表，包含每天的总喝水量、杯数和进度值。
-     *
-     * @return 返回一个 MutableList<HistoryBean>，表示历史记录列表。
-     */
-    fun getHistoryList(): MutableList<HistoryBean> {
-        val waterList = getWaterList()
-        val historyList = mutableListOf<HistoryBean>()
-
-        // 按日期分组
-        val groupedByDate = waterList.groupBy { it.date }
-
-        for ((date, beans) in groupedByDate) {
-            // 计算当天总喝水量
-            val totalDrink = beans.sumOf { it.drinkNum }
-
-            // 计算当天杯数（数据个数）
-            val cupCount = beans.size
-
-            // 获取当天的目标喝水量（取第一个数据的目标值）
-            val goalNum = beans.firstOrNull()?.goalNum ?: 0
-
-            // 计算喝水目标进度值
-            val progress = if (goalNum == 0) 0 else (totalDrink.toFloat() / goalNum * 100).toInt()
-
-            // 创建 HistoryBean 并添加到列表
-            historyList.add(HistoryBean(date, totalDrink, cupCount, progress))
-        }
-
-        // 按日期倒序排序（最近日期在前）
-        historyList.sortByDescending { it.date }
-
-        return historyList
-    }
-
-    fun cloneKey(activity: AppCompatActivity, view: View) {
-        val inputMethodManager =
-            activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    // 输入法隐藏扩展（提升可读性）
+    fun AppCompatActivity.hideKeyboard(view: View) {
+        (getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as?
+                android.view.inputmethod.InputMethodManager)
+            ?.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
