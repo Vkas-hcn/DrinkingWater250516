@@ -21,7 +21,7 @@
             android:id="@+id/tv_goal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="today‘s goal"
+            android:text="Today‘s Goal"
             android:textColor="#FF4B9135"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"

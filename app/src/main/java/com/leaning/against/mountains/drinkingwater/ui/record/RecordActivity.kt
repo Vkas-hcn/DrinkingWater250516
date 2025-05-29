@@ -79,11 +79,11 @@ class RecordActivity : BaseActivity<ActivityRecordBinding, BaseViewModel>(), Rec
         val entries = entriesWithData.map { it.first }
 
         val dataSet = LineDataSet(entries, "").apply {
-            color = resources.getColor(R.color.chart_1)
+            color = resources.getColor(R.color.user_lin)
             valueTextColor = resources.getColor(R.color.white)
-            setCircleColor(resources.getColor(R.color.chart_1))
-            lineWidth = 2f
-            circleRadius = 4f
+            setCircleColor(resources.getColor(R.color.user_lin))
+            lineWidth = 1f
+            circleRadius = 3f
             setDrawValues(true)
         }
 

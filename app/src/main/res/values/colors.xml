@@ -2,5 +2,5 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="chart_1">#21C4FF</color>
+    <color name="user_lin">#89D173</color>
 </resources>
